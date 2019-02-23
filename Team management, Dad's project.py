@@ -2,8 +2,7 @@ import pygame, sys
 
 pygame.init()
 
-size = (368,448)
-win = pygame.display.set_mode((size))
+
 
 red = (255, 0, 0)
 blue = (0, 255, 0)
@@ -14,9 +13,7 @@ pygame.display.set_caption('Team Managment')
 clock = pygame.time.Clock()
 
 class team(object):
-    def __init__(self, y, x, colour, measures):
-        self.y = y
-        self.x = x
+    def __init__(self, colour, measures):
         self.colour = colour
         self.measures = measures
 
@@ -46,10 +43,14 @@ class tribe(object):
         return self.teams
 
 
-class tribeMeasureView(object):
-    def __init__(self, tribe, currentMeasure):
+class itemsScoresView(object):
+    def __init__(self, tribe, currentMeasure, size, teamX, teamY, teamGap):
         self.tribe = tribe
         self.currentMeasure = currentMeasure
+        self.size = size
+        self.teamGap = teamGap
+        self.teamX = teamX
+        self.teamY = teamY
 
     def changeMeasure(self, measure):
         self.currentMeasure = measure
@@ -57,8 +58,13 @@ class tribeMeasureView(object):
 
 
     def draw(self, win):
+        count = 0
         for team in self.tribe.getTeams():
-            pygame.draw.rect(win, team.colour, (team.x, team.y, team.getMeasure(self.currentMeasure), 40))
+            pygame.draw.rect(win, team.colour, (self.teamX, (self.teamY + (40*count) + (self.teamGap*count)), team.getMeasure(self.currentMeasure), 40))
+            count += 1
+
+    def getSize(self):
+        return self.size
             
     
 
@@ -69,16 +75,18 @@ m1 = measure('releaseRate', 80)
 m2 = measure('operationalIncidents', 50)
 m3 = measure('releaseRate', 190)
 m4 = measure('operationalIncidents', 120)
-teamOne = team( 30, 10, red, [m1,m2])
-teamTwo = team(80, 10, blue,[m3,m4])
-teamThree = team(130, 10, green,[m3,m2])
-teamFour = team(180, 10, red,[m1,m4])
-teamFive = team(230, 10, blue,[m1,m2])
-teamSix = team(280, 10, green,[m3,m4])
-teamSeven = team(330, 10, red,[m3,m2])
-teamEight = team(380, 10, blue,[m1,m4])
+teamOne = team(red, [m1,m2])
+teamTwo = team(blue,[m3,m4])
+teamThree = team(green,[m3,m2])
+teamFour = team((171,0,255),[m1,m4])
+teamFive = team((255,255,0),[m1,m2])
+teamSix = team((255,162,0),[m3,m4])
+teamSeven = team((255,0,255),[m3,m2])
+teamEight = team((0,255,235),[m1,m4])
 tribeOne = tribe([teamOne,teamTwo,teamThree,teamFour,teamFive,teamSix,teamSeven,teamEight])
-viewOne = tribeMeasureView(tribeOne, 'operationalIncidents')
+viewOne = itemsScoresView(tribeOne, 'operationalIncidents', (368,448), 10, 20, 10)
+screen = (368,448) 
+win = pygame.display.set_mode(screen)
 #mainloop
 run = True
 while run:
