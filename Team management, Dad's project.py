@@ -2,8 +2,7 @@ import pygame, sys
 
 pygame.init()
 
-size = (368,448)
-win = pygame.display.set_mode((size))
+
 
 red = (255, 0, 0)
 blue = (0, 255, 0)
@@ -13,10 +12,11 @@ pygame.display.set_caption('Team Managment')
 
 clock = pygame.time.Clock()
 
+pygame.font.init()
+myfont = pygame.font.SysFont('Arial', 10)
+
 class team(object):
-    def __init__(self, y, x, colour, measures):
-        self.y = y
-        self.x = x
+    def __init__(self, colour, measures):
         self.colour = colour
         self.measures = measures
 
@@ -46,39 +46,67 @@ class tribe(object):
         return self.teams
 
 
-class tribeMeasureView(object):
-    def __init__(self, tribe, currentMeasure):
+class itemsScoresView(object):
+    def __init__(self, tribe, currentMeasure, teamX, teamY, teamGap, anchor, width, height, criticalValue):
         self.tribe = tribe
         self.currentMeasure = currentMeasure
+        self.teamGap = teamGap
+        self.teamX = teamX
+        self.teamY = teamY
+        self.anchor = anchor
+        self.width = width
+        self.height = height
+        self.criticalValue = criticalValue
 
     def changeMeasure(self, measure):
         self.currentMeasure = measure
         print(self.currentMeasure)
 
+    def changeCritValue(self, critValue):
+        self.criticalValue = critValue
+
 
     def draw(self, win):
+        count = 0
+        currentMeasurement = myfont.render(self.currentMeasure, False, (255, 255, 255))
+        win.blit(currentMeasurement, (130, 5))
         for team in self.tribe.getTeams():
-            pygame.draw.rect(win, team.colour, (team.x, team.y, team.getMeasure(self.currentMeasure), 40))
+            pygame.draw.rect(win, team.colour, (self.teamX, (self.teamY + (40*count) + (self.teamGap*count)), team.getMeasure(self.currentMeasure), 40))
+            count += 1
+        critValue = self.criticalValue
+        x = critValue.getX
+        pygame.draw.rect(win, red, (self.criticalValue.x, 20, 1, 390))
             
-    
+class criticalValue(object):
+    def __init__(self, x):
+        self.x = x
+
+    def changeValue(self, newX):
+        self.x = newX
+
+    def getX(self):
+        return self.x
 
 
-
-
-m1 = measure('releaseRate', 80)
-m2 = measure('operationalIncidents', 50)
-m3 = measure('releaseRate', 190)
-m4 = measure('operationalIncidents', 120)
-teamOne = team( 30, 10, red, [m1,m2])
-teamTwo = team(80, 10, blue,[m3,m4])
-teamThree = team(130, 10, green,[m3,m2])
-teamFour = team(180, 10, red,[m1,m4])
-teamFive = team(230, 10, blue,[m1,m2])
-teamSix = team(280, 10, green,[m3,m4])
-teamSeven = team(330, 10, red,[m3,m2])
-teamEight = team(380, 10, blue,[m1,m4])
+m1 = measure('Release Rate', 80)
+m2 = measure('Operational Incidents', 50)
+m3 = measure('Release Rate', 190)
+m4 = measure('Operational Incidents', 120)
+c1 = criticalValue(150)
+c2 = criticalValue(40)
+teamOne = team((165,207,255), [m1,m2])
+teamTwo = team(blue,[m3,m4])
+teamThree = team(green,[m3,m2])
+teamFour = team((171,0,255),[m1,m4])
+teamFive = team((255,255,0),[m1,m2])
+teamSix = team((255,162,0),[m3,m4])
+teamSeven = team((255,0,255),[m3,m2])
+teamEight = team((0,255,235),[m1,m4])
 tribeOne = tribe([teamOne,teamTwo,teamThree,teamFour,teamFive,teamSix,teamSeven,teamEight])
-viewOne = tribeMeasureView(tribeOne, 'operationalIncidents')
+viewOne = itemsScoresView(tribeOne, 'Operational Incidents', 10, 20, 10, (0,0), 368, 448, c2)
+screen = (368,448) 
+win = pygame.display.set_mode(screen)
+
 #mainloop
 run = True
 while run:
@@ -91,9 +119,11 @@ while run:
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_UP]:
-        viewOne.changeMeasure('operationalIncidents')
+        viewOne.changeMeasure('Operational Incidents')
+        viewOne.changeCritValue(c2)
     if keys[pygame.K_DOWN]:
-        viewOne.changeMeasure('releaseRate')
+        viewOne.changeMeasure('Release Rate')
+        viewOne.changeCritValue(c1)
 
     win.fill((0,0,0))
     viewOne.draw(win)
