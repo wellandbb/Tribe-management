@@ -47,10 +47,10 @@ class tribe(object):
 
 
 class itemsScoresView(object):
-    def __init__(self, tribe, currentMeasure, teamX, teamY, teamGap, anchor, width, height, criticalValue):
+    def __init__(self, tribe, currentMeasure, teamX, teamY, anchor, width, height, criticalValue):
         self.tribe = tribe
         self.currentMeasure = currentMeasure
-        self.teamGap = teamGap
+        self.teamGap = (height - teamY - 40*8 -10)/7
         self.teamX = teamX
         self.teamY = teamY
         self.anchor = anchor
@@ -69,23 +69,21 @@ class itemsScoresView(object):
     def draw(self, win):
         count = 0
         currentMeasurement = myfont.render(self.currentMeasure, False, (255, 255, 255))
-        win.blit(currentMeasurement, (130, 5))
+        win.blit(currentMeasurement, ((screenX/2 - 20), 5))
         for team in self.tribe.getTeams():
             pygame.draw.rect(win, team.colour, (self.teamX, (self.teamY + (40*count) + (self.teamGap*count)), team.getMeasure(self.currentMeasure), 40))
             count += 1
-        critValue = self.criticalValue
-        x = critValue.getX
-        pygame.draw.rect(win, red, (self.criticalValue.x, 20, 1, 390))
+        pygame.draw.rect(win, red, (self.criticalValue.value, 20, 1, 40*8+self.teamGap*7))
             
 class criticalValue(object):
-    def __init__(self, x):
-        self.x = x
+    def __init__(self, value):
+        self.value = value
 
-    def changeValue(self, newX):
-        self.x = newX
+    def changeValue(self, newValue):
+        self.value = newValue
 
-    def getX(self):
-        return self.x
+    def getValue(self):
+        return self.value
 
 
 m1 = measure('Release Rate', 80)
@@ -103,8 +101,10 @@ teamSix = team((255,162,0),[m3,m4])
 teamSeven = team((255,0,255),[m3,m2])
 teamEight = team((0,255,235),[m1,m4])
 tribeOne = tribe([teamOne,teamTwo,teamThree,teamFour,teamFive,teamSix,teamSeven,teamEight])
-viewOne = itemsScoresView(tribeOne, 'Operational Incidents', 10, 20, 10, (0,0), 368, 448, c2)
-screen = (368,448) 
+viewOne = itemsScoresView(tribeOne, 'Operational Incidents', 10, 20, (0,0), 368, 448, c2)
+screenX = 368
+screenY = 448
+screen = (screenX, screenY)
 win = pygame.display.set_mode(screen)
 
 #mainloop
